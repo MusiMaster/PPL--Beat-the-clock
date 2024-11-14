@@ -1,0 +1,14 @@
+#-----------------------------------------------------------
+# Vivado v2020.2 (64-bit)
+# SW Build 3064766 on Wed Nov 18 09:12:47 MST 2020
+# IP Build 3064653 on Wed Nov 18 14:17:31 MST 2020
+# Start of session at: Thu Nov 14 09:00:23 2024
+# Process ID: 18359
+# Current directory: /home/fij32622/Documents/PPL--Beat-the-clock
+# Command line: vivado
+# Log file: /home/fij32622/Documents/PPL--Beat-the-clock/vivado.log
+# Journal file: /home/fij32622/Documents/PPL--Beat-the-clock/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project /home/fij32622/Documents/PPL--Beat-the-clock/I2C_Test/I2C_Test.xpr
+update_compile_order -fileset sources_1

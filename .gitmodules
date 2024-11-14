@@ -1,3 +1,0 @@
-[submodule "VHDL_Lib"]
-	path = VHDL_Lib
-	url = git@github.com:xesscorp/VHDL_Lib.git

@@ -1,6 +1,6 @@
-webtalk_init -webtalk_dir /home/klk46394/Documents/PPL/PPL--Beat-the-clock/BeatTheClock/BeatTheClock.sim/sim_1/behav/xsim/xsim.dir/prng_tb_behav/webtalk/
+webtalk_init -webtalk_dir /home/klk46394/Documents/PPL/PPL--Beat-the-clock/BeatTheClock/BeatTheClock.sim/sim_1/behav/xsim/xsim.dir/tb_bothplayersready_behav/webtalk/
 webtalk_register_client -client project
-webtalk_add_data -client project -key date_generated -value "Sat Nov 16 12:05:35 2024" -context "software_version_and_target_device"
+webtalk_add_data -client project -key date_generated -value "Sat Nov 16 12:13:16 2024" -context "software_version_and_target_device"
 webtalk_add_data -client project -key product_version -value "XSIM v2020.2 (64-bit)" -context "software_version_and_target_device"
 webtalk_add_data -client project -key build_version -value "3064766" -context "software_version_and_target_device"
 webtalk_add_data -client project -key os_platform -value "LIN64" -context "software_version_and_target_device"
@@ -14,19 +14,19 @@ webtalk_add_data -client project -key target_package -value "not_applicable" -co
 webtalk_add_data -client project -key target_speed -value "not_applicable" -context "software_version_and_target_device"
 webtalk_add_data -client project -key random_id -value "a4c267bc-4d9e-444d-a12c-af77e51ff96d" -context "software_version_and_target_device"
 webtalk_add_data -client project -key project_id -value "e55194b66c3a40b3b5a9957c5f4caf73" -context "software_version_and_target_device"
-webtalk_add_data -client project -key project_iteration -value "52" -context "software_version_and_target_device"
+webtalk_add_data -client project -key project_iteration -value "6" -context "software_version_and_target_device"
 webtalk_add_data -client project -key os_name -value "Debian" -context "user_environment"
 webtalk_add_data -client project -key os_release -value "Debian GNU/Linux 10 (buster)" -context "user_environment"
 webtalk_add_data -client project -key cpu_name -value "Intel(R) Core(TM) i7-9700 CPU @ 3.00GHz" -context "user_environment"
-webtalk_add_data -client project -key cpu_speed -value "4296.026 MHz" -context "user_environment"
+webtalk_add_data -client project -key cpu_speed -value "4328.581 MHz" -context "user_environment"
 webtalk_add_data -client project -key total_processors -value "1" -context "user_environment"
 webtalk_add_data -client project -key system_ram -value "33.000 GB" -context "user_environment"
 webtalk_register_client -client xsim
 webtalk_add_data -client xsim -key Command -value "xsim" -context "xsim\\command_line_options"
 webtalk_add_data -client xsim -key trace_waveform -value "true" -context "xsim\\usage"
-webtalk_add_data -client xsim -key runtime -value "1 us" -context "xsim\\usage"
-webtalk_add_data -client xsim -key iteration -value "2" -context "xsim\\usage"
-webtalk_add_data -client xsim -key Simulation_Time -value "0.03_sec" -context "xsim\\usage"
-webtalk_add_data -client xsim -key Simulation_Memory -value "123484_KB" -context "xsim\\usage"
-webtalk_transmit -clientid 1735385871 -regid "" -xml /home/klk46394/Documents/PPL/PPL--Beat-the-clock/BeatTheClock/BeatTheClock.sim/sim_1/behav/xsim/xsim.dir/prng_tb_behav/webtalk/usage_statistics_ext_xsim.xml -html /home/klk46394/Documents/PPL/PPL--Beat-the-clock/BeatTheClock/BeatTheClock.sim/sim_1/behav/xsim/xsim.dir/prng_tb_behav/webtalk/usage_statistics_ext_xsim.html -wdm /home/klk46394/Documents/PPL/PPL--Beat-the-clock/BeatTheClock/BeatTheClock.sim/sim_1/behav/xsim/xsim.dir/prng_tb_behav/webtalk/usage_statistics_ext_xsim.wdm -intro "<H3>XSIM Usage Report</H3><BR>"
+webtalk_add_data -client xsim -key runtime -value "1000101 ps" -context "xsim\\usage"
+webtalk_add_data -client xsim -key iteration -value "0" -context "xsim\\usage"
+webtalk_add_data -client xsim -key Simulation_Time -value "0.01_sec" -context "xsim\\usage"
+webtalk_add_data -client xsim -key Simulation_Memory -value "115288_KB" -context "xsim\\usage"
+webtalk_transmit -clientid 351184019 -regid "" -xml /home/klk46394/Documents/PPL/PPL--Beat-the-clock/BeatTheClock/BeatTheClock.sim/sim_1/behav/xsim/xsim.dir/tb_bothplayersready_behav/webtalk/usage_statistics_ext_xsim.xml -html /home/klk46394/Documents/PPL/PPL--Beat-the-clock/BeatTheClock/BeatTheClock.sim/sim_1/behav/xsim/xsim.dir/tb_bothplayersready_behav/webtalk/usage_statistics_ext_xsim.html -wdm /home/klk46394/Documents/PPL/PPL--Beat-the-clock/BeatTheClock/BeatTheClock.sim/sim_1/behav/xsim/xsim.dir/tb_bothplayersready_behav/webtalk/usage_statistics_ext_xsim.wdm -intro "<H3>XSIM Usage Report</H3><BR>"
 webtalk_terminate

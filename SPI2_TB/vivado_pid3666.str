@@ -7078,3 +7078,12 @@ selectTab("PlanAheadTabBaseWorkspace_JideTabbedPane", (HResource) null, "Send8Bi
 // Elapsed time: 115 seconds
 selectTab("PlanAheadTabBaseWorkspace_JideTabbedPane", (HResource) null, "Send8BitSPI2.vhd", 0); // m
 // TclEventType: FILE_SET_CHANGE
+// Elapsed time: 319 seconds
+closeMainWindow("SPI2_TB - [/home/fij32622/Documents/SPI2_TB/SPI2_TB.xpr] - Vivado 2020.2"); // cr
+// Run Command: PAResourceCommand.PACommandNames_EXIT
+// A (cr): Exit Vivado: addNotify
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a
+// bz (cr):  Close : addNotify
+// TclEventType: WAVEFORM_CLOSE_WCFG
+dismissDialog("Exit Vivado"); // A
+// TclEventType: SIMULATION_CLOSE_SIMULATION

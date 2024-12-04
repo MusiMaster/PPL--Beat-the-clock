@@ -32,6 +32,7 @@ ARCHITECTURE behavior OF Send8BitSPI2_TB IS
   SIGNAL sclk         : STD_LOGIC;
   SIGNAL ss_n         : STD_LOGIC_VECTOR(0 DOWNTO 0);
   SIGNAL busy         : STD_LOGIC;
+  
 
   -- Clock period definition
   CONSTANT clk_period : TIME := 10 ns;

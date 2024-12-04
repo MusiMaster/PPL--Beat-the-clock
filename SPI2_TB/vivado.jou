@@ -1,0 +1,38 @@
+#-----------------------------------------------------------
+# Vivado v2020.2 (64-bit)
+# SW Build 3064766 on Wed Nov 18 09:12:47 MST 2020
+# IP Build 3064653 on Wed Nov 18 14:17:31 MST 2020
+# Start of session at: Wed Dec  4 11:39:29 2024
+# Process ID: 3666
+# Current directory: /home/fij32622/Documents/SPI2_TB
+# Command line: vivado SPI2_TB.
+# Log file: /home/fij32622/Documents/SPI2_TB/vivado.log
+# Journal file: /home/fij32622/Documents/SPI2_TB/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project /home/fij32622/Documents/SPI2_TB/SPI2_TB.xpr
+update_compile_order -fileset sources_1
+set_property is_enabled false [get_files  /home/fij32622/Documents/SPI2_TB/SPI2_TB.srcs/sources_1/new/Top_level.vhd]
+update_compile_order -fileset sources_1
+launch_simulation
+launch_simulation
+launch_simulation
+launch_simulation
+source Send8BitSPI2_TB.tcl
+run 10 ns
+run all
+close_sim
+launch_simulation
+source Send8BitSPI2_TB.tcl
+close_sim
+launch_simulation
+source Send8BitSPI2_TB.tcl
+relaunch_sim
+relaunch_sim
+set_property -name {xsim.simulate.runtime} -value {10000ns} -objects [get_filesets sim_1]
+relaunch_sim
+close_sim
+launch_simulation
+source Send8BitSPI2_TB.tcl
+run 4 us
+relaunch_sim

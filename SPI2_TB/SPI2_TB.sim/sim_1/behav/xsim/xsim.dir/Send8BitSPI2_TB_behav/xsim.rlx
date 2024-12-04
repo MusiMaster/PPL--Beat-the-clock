@@ -1,0 +1,12 @@
+
+{ 
+    crc :  4018165322468121160  , 
+    ccp_crc :  0  , 
+    cmdline : " -wto 489deb8d4b4f4f9486c63299f0816cd5 --incr --debug typical --relax --mt 8 -L xil_defaultlib -L secureip --snapshot Send8BitSPI2_TB_behav xil_defaultlib.Send8BitSPI2_TB" , 
+    buildDate : "Nov 18 2020" , 
+    buildTime : "09:20:35" , 
+    linkCmd : "/usr/bin/gcc -Wa,-W  -O -fPIC  -m64  -Wl,--no-as-needed  -Wl,--unresolved-symbols=ignore-all  -o \"xsim.dir/Send8BitSPI2_TB_behav/xsimk\"   \"xsim.dir/Send8BitSPI2_TB_behav/obj/xsim_0.lnx64.o\" \"xsim.dir/Send8BitSPI2_TB_behav/obj/xsim_1.lnx64.o\" -L\"/opt/Xilinx/Vivado/2020.2/lib/lnx64.o\" -lrdi_simulator_kernel   -lrdi_simbridge_kernel" , 
+    aggregate_nets : 
+    [ 
+    ] 
+} 

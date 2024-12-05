@@ -16,7 +16,8 @@ ENTITY Send8BitSPI2 IS
     sclk          : OUT STD_LOGIC;             -- SPI Clock
     ss_n          : OUT STD_LOGIC_VECTOR(0 DOWNTO 0); -- Slave Select
     busy          : OUT STD_LOGIC;             -- Busy signal
-    reset_out     : buffer STD_LOGIC              -- Reset out for lcd 
+    reset_out     : buffer STD_LOGIC;          -- Reset out for lcd 
+    data_cmd_sw   : out STD_LOGIC              -- D/C Pin  to signalize between cmd or data transfer {0 = cmd; 1 = data}
   );
 END Send8BitSPI2;
 
@@ -46,28 +47,15 @@ ARCHITECTURE behavior OF Send8BitSPI2 IS
       rx_data : OUT STD_LOGIC_VECTOR(d_width-1 DOWNTO 0)
     );
   END COMPONENT;
-
-  SIGNAL enable_signal   : STD_LOGIC := '0';
-  signal tx_buf          : STD_LOGIC_VECTOR(7 downto 0);  
-  SIGNAL spi_busy        : STD_LOGIC;
-  SIGNAL dummy_rx_data   : STD_LOGIC_VECTOR(7 DOWNTO 0);
-  SIGNAL spi_clk         : STD_LOGIC;
-  SIGNAL spi_ss_n        : STD_LOGIC_VECTOR(0 DOWNTO 0);
-  SIGNAL spi_mosi        : STD_LOGIC;
-  signal init_seq       :   STD_LOGIC := '0';
-  signal init_start     :   STD_LOGIC := '0';
-  signal byte_cmd              :   integer := 0;
-  signal byte_data   :   integer := 0;
-  signal byte_data_cont   :   integer := 0;
   
-  constant LCD_init_cmd        : ByteArray :=  (
+  constant LCD_init_cmd : ByteArray :=  (
     0  => x"CB", 1  => x"CF", 2  => x"E8", 3  => x"EA", 4  => x"ED",
     5  => x"F7", 6  => x"C0", 7  => x"C1", 8  => x"C5", 9  => x"C7",
     10 => x"36", 11 => x"3A", 12 => x"B1", 13 => x"B6", 14 => x"F2",
     15 => x"26", 16 => x"E0", 17 => x"E1"
   );
   
-  constant LCD_init_data        : ByteArray :=  (
+  constant LCD_init_data : ByteArray :=  (
     0 => x"39", 1 => x"2C", 2 => x"00", 3 => x"34", 4 => x"02",
     5 => x"00", 6 => x"C1", 7 => x"30", 8 => x"85", 9 => x"00",
     10 => x"78", 11 => x"00", 12 => x"00", 13 => x"64", 14 => x"03",
@@ -103,12 +91,43 @@ ARCHITECTURE behavior OF Send8BitSPI2 IS
     16 => std_logic_vector(to_unsigned(15, 8)), -- 15
     17 => std_logic_vector(to_unsigned(15, 8))  -- 15
   );
+  
+  
+  signal spi_select         : STD_LOGIC_VECTOR(1 downto 0) := "00";
+  
+  --spi(0) 8 bit  
+  SIGNAL enable_signal_0    : STD_LOGIC := '0';
+  signal tx_buf_0           : STD_LOGIC_VECTOR(7 downto 0);  
+  SIGNAL spi_0_busy         : STD_LOGIC;
+  SIGNAL dummy_rx_data_0      : STD_LOGIC_VECTOR(7 DOWNTO 0);
+  SIGNAL spi_0_clk          : STD_LOGIC;
+  SIGNAL spi_0_ss_n         : STD_LOGIC_VECTOR(0 DOWNTO 0);
+  SIGNAL spi_0_mosi         : STD_LOGIC;
+  
+  --spi(1) 16 bit  
+  SIGNAL enable_signal_1    : STD_LOGIC := '0';
+  signal tx_buf_1           : STD_LOGIC_VECTOR(15 downto 0);  
+  SIGNAL spi_1_busy         : STD_LOGIC;
+  SIGNAL dummy_rx_data_1     : STD_LOGIC_VECTOR(15 DOWNTO 0);
+  SIGNAL spi_1_clk          : STD_LOGIC;
+  SIGNAL spi_1_ss_n         : STD_LOGIC_VECTOR(0 DOWNTO 0);
+  SIGNAL spi_1_mosi         : STD_LOGIC;
+  
+  
+  -- init-sequenz utils
+  signal init_seq           : STD_LOGIC := '0';
+  signal init_start         : STD_LOGIC := '0';
+  signal byte_cmd           : integer := 0;
+  signal byte_data          : integer := 0;
+  signal byte_data_cont     : integer := 0;
+  
+  
    
 
 BEGIN
 
-  -- Instantiating the SPI Master
-  SPI_INST : spi_master
+  -- Instantiating the SPI Master 0
+  SPI_0_INST : spi_master
     GENERIC MAP (
       slaves  => 1,
       d_width => 8
@@ -116,70 +135,106 @@ BEGIN
     PORT MAP (
       clock   => clk,
       reset_n => reset_n,
-      enable  => enable_signal,
+      enable  => enable_signal_0,
       cpol    => '0',       -- Clock polarity (CPOL = 0)
       cpha    => '0',       -- Clock phase (CPHA = 0)
       cont    => '0',       -- Non-continuous mode
       clk_div => 2,         -- Clock divider (adjust as needed)
       addr    => 0,         -- Slave address (only one slave in this case)
-      tx_data => tx_buf,   -- 8-bit data to send
+      tx_data => tx_buf_0,   -- 8-bit data to send
       miso    => miso,
-      sclk    => spi_clk,
-      ss_n    => spi_ss_n,
-      mosi    => spi_mosi,
-      busy    => spi_busy,
-      rx_data => dummy_rx_data
+      sclk    => spi_0_clk,
+      ss_n    => spi_0_ss_n,
+      mosi    => spi_0_mosi,
+      busy    => spi_0_busy,
+      rx_data => dummy_rx_data_0
+    );
+    
+    -- Instantiating the SPI Master 1
+  SPI_1_INST : spi_master
+    GENERIC MAP (
+      slaves  => 1,
+      d_width => 16
+    )
+    PORT MAP (
+      clock   => clk,
+      reset_n => reset_n,
+      enable  => enable_signal_1,
+      cpol    => '0',       -- Clock polarity (CPOL = 0)
+      cpha    => '0',       -- Clock phase (CPHA = 0)
+      cont    => '0',       -- Non-continuous mode
+      clk_div => 2,         -- Clock divider (adjust as needed)
+      addr    => 0,         -- Slave address (only one slave in this case)
+      tx_data => tx_buf_1,   -- 16-bit data to send
+      miso    => miso,
+      sclk    => spi_1_clk,
+      ss_n    => spi_1_ss_n,
+      mosi    => spi_1_mosi,
+      busy    => spi_1_busy,
+      rx_data => dummy_rx_data_1
     );
 
   -- Output Assignments
-  mosi <= spi_mosi;
-  sclk <= spi_clk;
-  ss_n <= spi_ss_n;
-  busy <= spi_busy;
+  mosi <= spi_0_mosi when spi_select = "00" else spi_1_mosi;
+  mosi <= spi_0_clk when spi_select = "00"  else spi_1_clk ;
+  sclk <= spi_0_clk when spi_select = "00"  else spi_1_clk ;
+  ss_n <= spi_0_ss_n when spi_select = "00" else spi_1_ss_n;
+  busy <= spi_0_busy when spi_select = "00" else spi_1_busy;
  
   -- Enable SPI Transaction when send_trigger is high and SPI is not busy
-  PROCESS(clk, reset_n)
-  BEGIN
-    IF reset_n = '0' THEN
-      enable_signal <= '0';
-    ELSIF rising_edge(clk) THEN
-      IF send_trigger = '1' AND spi_busy = '0' THEN
-        enable_signal <= '1';
-      ELSE
-        enable_signal <= '0';
-      END IF;
-    END IF;
-  END PROCESS;
+--  PROCESS(clk, reset_n)
+--  BEGIN
+--    IF reset_n = '0' THEN
+--      enable_signal <= '0';
+--    ELSIF rising_edge(clk) THEN
+--      IF send_trigger = '1' AND spi_busy = '0' THEN
+--        enable_signal <= '1';
+--      ELSE
+--        enable_signal <= '0';
+--      END IF;
+      
+--      end loop
+--    END IF;
+--  END PROCESS;
 
   PROCESS
   BEGIN
     IF init_seq = '0' THEN
       init_start <= '1';
       init_seq <= '1';
-      WAIT for 10 ns;
-      init_start <= '1';
+      WAIT until clk'event;
+      init_start <= '0';
       
     END IF;
   END PROCESS;  
   
-  LCD_init : Process
+  LCD_init_seq : Process
   Begin
     if rising_edge(init_start) then
         for i in 0 to 2 LOOP                        -- Reset sequenz for LCD
             reset_out <= (reset_out XOR '1');
         end loop;
         
+        spi_select <= "00";                         -- selecting spi 0 (8Bit)
+        
         while byte_cmd < 18 loop                -- go through LCD_init_cmds 
            
-           wait until spi_busy = '0';
-           tx_buf <= LCD_init_cmd(byte_cmd);
-           enable_signal <= '1';
+           wait until spi_0_busy = '0';
+           tx_buf_0 <= LCD_init_cmd(byte_cmd);
+           data_cmd_sw <= '0';                      -- set DC to CMD-mode (0)
+           enable_signal_0 <= '1';
+           wait until clk'event;
+           enable_signal_0 <= '0';
            
            while byte_data < LCD_init_data_count(byte_cmd) loop         -- got through LCD_init_data
            
-                wait until spi_busy = '0';
-                tx_buf <= LCD_init_data(byte_data_cont);
-                enable_signal <= '1';
+                wait until spi_0_busy = '0';
+                data_cmd_sw <= '1';                                     -- set DC to Data-mode (0)
+                tx_buf_0 <= LCD_init_data(byte_data_cont);
+                enable_signal_0 <= '1';
+                wait until clk'event;
+                enable_signal_0 <= '0';
+                
                 byte_data <= byte_data + 1;
                 byte_data_cont <= byte_data_cont +1;
            End loop;
@@ -188,7 +243,17 @@ BEGIN
            byte_cmd <= byte_cmd + 1;
            
         End loop;
-        Wait for 120 ms;
+        
+        wait until spi_0_busy = '0';
+        data_cmd_sw <= '0';                      -- set DC to CMD-mode (0)
+        tx_buf_0 <= "00010001";                  -- Sleep out
+        enable_signal_0 <= '1';
+        wait until clk'event;
+        enable_signal_0 <= '0';
+        
+        Wait for 200 ms;
+        
+        
         
     End if;
   End Process;

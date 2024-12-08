@@ -1,0 +1,50 @@
+#-----------------------------------------------------------
+# Vivado v2020.2 (64-bit)
+# SW Build 3064766 on Wed Nov 18 09:12:47 MST 2020
+# IP Build 3064653 on Wed Nov 18 14:17:31 MST 2020
+# Start of session at: Thu Dec  5 15:48:14 2024
+# Process ID: 19931
+# Current directory: /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.runs/synth_1
+# Command line: vivado -log Send8BitSPI2.vds -product Vivado -mode batch -messageDb vivado.pb -notrace -source Send8BitSPI2.tcl
+# Log file: /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.runs/synth_1/Send8BitSPI2.vds
+# Journal file: /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.runs/synth_1/vivado.jou
+#-----------------------------------------------------------
+source Send8BitSPI2.tcl -notrace
+Command: synth_design -top Send8BitSPI2 -part xc7a100tcsg324-1
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7a100t'
+INFO: [Device 21-403] Loading part xc7a100tcsg324-1
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 4 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 19960
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2423.660 ; gain = 31.789 ; free physical = 81071 ; free virtual = 123116
+---------------------------------------------------------------------------------
+INFO: [Synth 8-638] synthesizing module 'Send8BitSPI2' [/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/new/Send8BitSPI2.vhd:24]
+	Parameter slaves bound to: 1 - type: integer 
+	Parameter d_width bound to: 8 - type: integer 
+INFO: [Synth 8-3491] module 'spi_master' declared at '/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/imports/Downloads/spi_master.vhd:32' bound to instance 'SPI_0_INST' of component 'spi_master' [/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/new/Send8BitSPI2.vhd:131]
+INFO: [Synth 8-638] synthesizing module 'spi_master' [/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/imports/Downloads/spi_master.vhd:54]
+	Parameter slaves bound to: 1 - type: integer 
+	Parameter d_width bound to: 8 - type: integer 
+INFO: [Synth 8-256] done synthesizing module 'spi_master' (1#1) [/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/imports/Downloads/spi_master.vhd:54]
+	Parameter slaves bound to: 1 - type: integer 
+	Parameter d_width bound to: 16 - type: integer 
+INFO: [Synth 8-3491] module 'spi_master' declared at '/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/imports/Downloads/spi_master.vhd:32' bound to instance 'SPI_1_INST' of component 'spi_master' [/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/new/Send8BitSPI2.vhd:155]
+INFO: [Synth 8-638] synthesizing module 'spi_master__parameterized1' [/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/imports/Downloads/spi_master.vhd:54]
+	Parameter slaves bound to: 1 - type: integer 
+	Parameter d_width bound to: 16 - type: integer 
+INFO: [Synth 8-256] done synthesizing module 'spi_master__parameterized1' (1#1) [/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/imports/Downloads/spi_master.vhd:54]
+WARNING: [Synth 8-2897] clock signal used as data [/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/new/Send8BitSPI2.vhd:263]
+ERROR: [Synth 8-27] non-clocking wait statement not supported [/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/new/Send8BitSPI2.vhd:258]
+ERROR: [Synth 8-285] failed synthesizing module 'Send8BitSPI2' [/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/new/Send8BitSPI2.vhd:24]
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:03 ; elapsed = 00:00:03 . Memory (MB): peak = 2467.598 ; gain = 75.727 ; free physical = 81075 ; free virtual = 123120
+---------------------------------------------------------------------------------
+RTL Elaboration failed
+INFO: [Common 17-83] Releasing license: Synthesis
+13 Infos, 1 Warnings, 0 Critical Warnings and 3 Errors encountered.
+synth_design failed
+ERROR: [Common 17-69] Command failed: Synthesis failed - please see the console or run log file for details
+INFO: [Common 17-206] Exiting Vivado at Thu Dec  5 15:48:28 2024...

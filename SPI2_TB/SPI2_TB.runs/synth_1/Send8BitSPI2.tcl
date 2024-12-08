@@ -4,7 +4,7 @@
 
 set TIME_start [clock seconds] 
 namespace eval ::optrace {
-  variable script "/home/fij32622/Documents/SPI2_TB/SPI2_TB.runs/synth_1/Top_level.tcl"
+  variable script "/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.runs/synth_1/Send8BitSPI2.tcl"
   variable category "vivado_synth"
 }
 
@@ -70,27 +70,25 @@ proc create_report { reportName command } {
   }
 }
 OPTRACE "synth_1" START { ROLLUP_AUTO }
-set_param chipscope.maxJobs 2
-set_param xicom.use_bs_reader 1
 OPTRACE "Creating in-memory project" START { }
 create_project -in_memory -part xc7a100tcsg324-1
 
 set_param project.singleFileAddWarning.threshold 0
 set_param project.compositeFile.enableAutoGeneration 0
 set_param synth.vivado.isSynthRun true
-set_property webtalk.parent_dir /home/fij32622/Documents/SPI2_TB/SPI2_TB.cache/wt [current_project]
-set_property parent.project_path /home/fij32622/Documents/SPI2_TB/SPI2_TB.xpr [current_project]
+set_property webtalk.parent_dir /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.cache/wt [current_project]
+set_property parent.project_path /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.xpr [current_project]
 set_property default_lib xil_defaultlib [current_project]
 set_property target_language VHDL [current_project]
 set_property board_part digilentinc.com:nexys4:part0:1.1 [current_project]
-set_property ip_output_repo /home/fij32622/Documents/SPI2_TB/SPI2_TB.cache/ip [current_project]
+set_property ip_output_repo /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.cache/ip [current_project]
 set_property ip_cache_permissions {read write} [current_project]
 OPTRACE "Creating in-memory project" END { }
 OPTRACE "Adding files" START { }
 read_vhdl -library xil_defaultlib {
-  /home/fij32622/Documents/SPI2_TB/SPI2_TB.srcs/sources_1/new/Send8BitSPI2.vhd
-  /home/fij32622/Documents/SPI2_TB/SPI2_TB.srcs/sources_1/imports/Downloads/spi_master.vhd
-  /home/fij32622/Documents/SPI2_TB/SPI2_TB.srcs/sources_1/new/Top_level.vhd
+  /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/new/Array_1x8_Pkg.vhd
+  /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/imports/Downloads/spi_master.vhd
+  /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/new/Send8BitSPI2.vhd
 }
 OPTRACE "Adding files" END { }
 # Mark all dcp files as not used in implementation to prevent them from being
@@ -101,14 +99,14 @@ OPTRACE "Adding files" END { }
 foreach dcp [get_files -quiet -all -filter file_type=="Design\ Checkpoint"] {
   set_property used_in_implementation false $dcp
 }
-read_xdc /home/fij32622/Documents/SPI2_TB/SPI2_TB.srcs/constrs_1/imports/constraints/Nexys4_Master.xdc
-set_property used_in_implementation false [get_files /home/fij32622/Documents/SPI2_TB/SPI2_TB.srcs/constrs_1/imports/constraints/Nexys4_Master.xdc]
+read_xdc /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/constrs_1/imports/constraints/Nexys4_Master.xdc
+set_property used_in_implementation false [get_files /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/constrs_1/imports/constraints/Nexys4_Master.xdc]
 
 set_param ips.enableIPCacheLiteLoad 1
 close [open __synthesis_is_running__ w]
 
 OPTRACE "synth_design" START { }
-synth_design -top Top_level -part xc7a100tcsg324-1
+synth_design -top Send8BitSPI2 -part xc7a100tcsg324-1
 OPTRACE "synth_design" END { }
 if { [get_msg_config -count -severity {CRITICAL WARNING}] > 0 } {
  send_msg_id runtcl-6 info "Synthesis results are not added to the cache due to CRITICAL_WARNING"
@@ -118,10 +116,10 @@ if { [get_msg_config -count -severity {CRITICAL WARNING}] > 0 } {
 OPTRACE "write_checkpoint" START { CHECKPOINT }
 # disable binary constraint mode for synth run checkpoints
 set_param constraints.enableBinaryConstraints false
-write_checkpoint -force -noxdef Top_level.dcp
+write_checkpoint -force -noxdef Send8BitSPI2.dcp
 OPTRACE "write_checkpoint" END { }
 OPTRACE "synth reports" START { REPORT }
-create_report "synth_1_synth_report_utilization_0" "report_utilization -file Top_level_utilization_synth.rpt -pb Top_level_utilization_synth.pb"
+create_report "synth_1_synth_report_utilization_0" "report_utilization -file Send8BitSPI2_utilization_synth.rpt -pb Send8BitSPI2_utilization_synth.pb"
 OPTRACE "synth reports" END { }
 file delete __synthesis_is_running__
 close [open __synthesis_is_complete__ w]

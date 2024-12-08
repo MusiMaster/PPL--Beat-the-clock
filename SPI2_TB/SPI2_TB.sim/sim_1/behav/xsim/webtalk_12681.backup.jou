@@ -2,8 +2,8 @@
 # Webtalk v2020.2 (64-bit)
 # SW Build 3064766 on Wed Nov 18 09:12:47 MST 2020
 # IP Build 3064653 on Wed Nov 18 14:17:31 MST 2020
-# Start of session at: Thu Dec  5 15:46:55 2024
-# Process ID: 19537
+# Start of session at: Thu Dec  5 14:48:34 2024
+# Process ID: 12681
 # Current directory: /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.sim/sim_1/behav/xsim
 # Command line: wbtcv -mode batch -source /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.sim/sim_1/behav/xsim/xsim.dir/Send8BitSPI2_TB_behav/webtalk/xsim_webtalk.tcl -notrace
 # Log file: /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.sim/sim_1/behav/xsim/webtalk.log

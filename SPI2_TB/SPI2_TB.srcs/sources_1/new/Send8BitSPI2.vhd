@@ -9,14 +9,14 @@ ENTITY Send8BitSPI2 IS
   PORT(
     clk           : IN  STD_LOGIC;             -- System Clock
     reset_n       : IN  STD_LOGIC;             -- Asynchronous Reset
-    send_trigger  : IN  STD_LOGIC;             -- Trigger to send data
-    data_in       : IN  STD_LOGIC_VECTOR(7 DOWNTO 0); -- 8-bit data input
+    --send_trigger  : IN  STD_LOGIC;             -- Trigger to send data
+    --data_in       : IN  STD_LOGIC_VECTOR(7 DOWNTO 0); -- 8-bit data input
     miso          : IN  STD_LOGIC;             -- Master In, Slave Out
     mosi          : OUT STD_LOGIC;             -- Master Out, Slave In
     sclk          : OUT STD_LOGIC;             -- SPI Clock
     ss_n          : OUT STD_LOGIC_VECTOR(0 DOWNTO 0); -- Slave Select
     busy          : OUT STD_LOGIC;             -- Busy signal
-    reset_out     : buffer STD_LOGIC;          -- Reset out for lcd 
+    reset_out     : out STD_LOGIC := '1';   -- Reset out for lcd 
     data_cmd_sw   : out STD_LOGIC              -- D/C Pin  to signalize between cmd or data transfer {0 = cmd; 1 = data}
   );
 END Send8BitSPI2;
@@ -52,7 +52,7 @@ ARCHITECTURE behavior OF Send8BitSPI2 IS
     0  => x"CB", 1  => x"CF", 2  => x"E8", 3  => x"EA", 4  => x"ED",
     5  => x"F7", 6  => x"C0", 7  => x"C1", 8  => x"C5", 9  => x"C7",
     10 => x"36", 11 => x"3A", 12 => x"B1", 13 => x"B6", 14 => x"F2",
-    15 => x"26", 16 => x"E0", 17 => x"E1"
+    15 => x"26", 16 => x"E0", 17 => x"E1", 18 => x"11"
   );
   
   constant LCD_init_data : ByteArray :=  (
@@ -89,8 +89,10 @@ ARCHITECTURE behavior OF Send8BitSPI2 IS
     14 => std_logic_vector(to_unsigned(1, 8)),  -- 1
     15 => std_logic_vector(to_unsigned(1, 8)),  -- 1
     16 => std_logic_vector(to_unsigned(15, 8)), -- 15
-    17 => std_logic_vector(to_unsigned(15, 8))  -- 15
+    17 => std_logic_vector(to_unsigned(15, 8)),  -- 15
+    18 => std_logic_vector(to_unsigned(0, 8))
   );
+  constant LCD_Pixel : integer := (320*240);
   
   
   signal spi_select         : STD_LOGIC_VECTOR(1 downto 0) := "00";
@@ -113,13 +115,19 @@ ARCHITECTURE behavior OF Send8BitSPI2 IS
   SIGNAL spi_1_ss_n         : STD_LOGIC_VECTOR(0 DOWNTO 0);
   SIGNAL spi_1_mosi         : STD_LOGIC;
   
-  
-  -- init-sequenz utils
-  signal init_seq           : STD_LOGIC := '0';
-  signal init_start         : STD_LOGIC := '0';
-  signal byte_cmd           : integer := 0;
-  signal byte_data          : integer := 0;
-  signal byte_data_cont     : integer := 0;
+  -- Zustandsdefinition
+  TYPE state_type IS (IDLE, RESET_LCD, SEND_CMD, SEND_DATA, WAIT_start, WAIT_BUSY, INIT_DONE_STATE);
+  SIGNAL state : state_type := IDLE;
+             
+  -- Init-Sequenz Variablen
+  signal resetrun       : integer := 0;
+  SIGNAL byte_cmd       : integer := 0;
+  SIGNAL byte_data      : integer := 0;
+  SIGNAL byte_data_cont : integer := 0;
+  SIGNAL init_done      : boolean := false;
+
+  signal reset_out_sig      : STD_LOGIC := '1';
+  signal data_cmd_sw_sig        :   STD_logic;
   
   
    
@@ -176,10 +184,105 @@ BEGIN
 
   -- Output Assignments
   mosi <= spi_0_mosi when spi_select = "00" else spi_1_mosi;
-  mosi <= spi_0_clk when spi_select = "00"  else spi_1_clk ;
   sclk <= spi_0_clk when spi_select = "00"  else spi_1_clk ;
   ss_n <= spi_0_ss_n when spi_select = "00" else spi_1_ss_n;
   busy <= spi_0_busy when spi_select = "00" else spi_1_busy;
+  reset_out <= reset_out_sig;
+  data_cmd_sw <= data_cmd_sw_sig;
+  --
+ 
+ 
+     -- FSM Prozess
+    LCD_init_seq : PROCESS(clk, reset_n)
+    BEGIN
+        IF reset_n = '0' THEN
+            -- Reset-Logik
+            state          <= RESET_LCD;
+            reset_out_sig      <= '1';
+            byte_cmd       <= 0;
+            byte_data      <= 0;
+            byte_data_cont <= 0;
+            spi_select     <= "00";
+            data_cmd_sw_sig    <= '0';
+            tx_buf_0       <= (others => '0');
+            enable_signal_0 <= '0';
+        
+        ELSIF rising_edge(clk) THEN
+            CASE state IS
+                WHEN IDLE =>
+                    -- Start der Initialisierung
+                    state <= RESET_LCD;
+
+                WHEN RESET_LCD =>
+                    -- Reset-Impuls senden
+                    reset_out_sig <= NOT reset_out_sig;
+                    resetrun <= resetrun + 1;
+                    if resetrun < 3 then
+                        state <= SEND_CMD;
+                    end if;
+                        
+                WHEN SEND_CMD =>
+                    IF byte_cmd < LCD_init_cmd'length THEN
+                        IF spi_0_busy = '0' THEN
+                            tx_buf_0 <= LCD_init_cmd(byte_cmd);
+                            data_cmd_sw_sig <= '0'; -- CMD-Modus
+                            enable_signal_0 <= '1';
+                            state <= WAIT_start;
+                        END IF;
+                    END IF;
+                    IF byte_cmd = LCD_init_cmd'length OR byte_cmd > LCD_init_cmd'length then
+                        state <= INIT_DONE_STATE;
+                    END IF;
+
+                WHEN SEND_DATA =>
+                    IF byte_data < LCD_init_data_count(byte_cmd) THEN
+                        IF spi_0_busy = '0' THEN
+                            tx_buf_0 <= LCD_init_data(byte_data_cont);
+                            data_cmd_sw_sig <= '1'; -- DATA-Modus
+                            enable_signal_0 <= '1';
+                            state <= WAIT_BUSY;
+                            byte_data_cont <= byte_data_cont + 1;
+                            byte_data <= byte_data + 1;
+                        END IF;
+                    END IF;
+                    IF byte_data = LCD_init_data_count(byte_cmd) then
+                        byte_data <= 0;
+                        byte_cmd <= byte_cmd + 1;
+                        state <= SEND_CMD;
+                    END IF;
+                    IF byte_cmd = LCD_init_cmd'length then
+                        state <= INIT_DONE_STATE;
+                    END IF;
+                
+                WHEN WAIT_start =>
+                    
+                    enable_signal_0 <= '0'; -- Sofort deaktivieren
+                    state <= WAIT_BUSY; -- Wechsel zu Busy-Warten
+                    
+                WHEN WAIT_BUSY =>
+                    IF spi_0_busy = '0' THEN
+                        IF LCD_init_data_count(byte_cmd) > 0 THEN
+                            
+                            state <= SEND_DATA;
+                        ELSE
+                            byte_data <= 0;
+                            byte_cmd <= byte_cmd + 1;
+                            state <= SEND_CMD;
+                        END IF;
+                    END IF;
+
+                WHEN INIT_DONE_STATE =>
+                    -- Initialisierung abgeschlossen, eventuell weitere Schritte
+                    --state <= IDLE;
+                    
+
+                WHEN OTHERS =>
+                    state <= IDLE;
+            END CASE;
+        END IF;
+    END PROCESS LCD_init_seq;
+  
+ 
  
   -- Enable SPI Transaction when send_trigger is high and SPI is not busy
 --  PROCESS(clk, reset_n)
@@ -197,65 +300,206 @@ BEGIN
 --    END IF;
 --  END PROCESS;
 
-  PROCESS
-  BEGIN
-    IF init_seq = '0' THEN
-      init_start <= '1';
-      init_seq <= '1';
-      WAIT until clk'event;
-      init_start <= '0';
+--  PROCESS
+--  BEGIN
+----    IF init_seq = '0' THEN
+----      init_start <= '1';
+----      init_seq <= '1';
+----      WAIT for 20 ns;
+----      init_start <= '0';
       
-    END IF;
-  END PROCESS;  
+----    END IF;
+--    IF reset_n = '0' THEN
+--      enable_signal_0 <= '0';
+--      enable_signal_1 <= '0';
+--    End If;
+--  END PROCESS;  
   
-  LCD_init_seq : Process
-  Begin
-    if rising_edge(init_start) then
-        for i in 0 to 2 LOOP                        -- Reset sequenz for LCD
-            reset_out <= (reset_out XOR '1');
-        end loop;
+--  LCD_init_seq : Process
+--  Begin
+--    if not init_start then
+--        for i in 0 to 2 LOOP                        -- Reset sequenz for LCD
+--            reset_out_sig <= (reset_out_sig XOR '1');
+--        end loop;
         
-        spi_select <= "00";                         -- selecting spi 0 (8Bit)
+--        spi_select <= "00";                         -- selecting spi 0 (8Bit)
         
-        while byte_cmd < 18 loop                -- go through LCD_init_cmds 
+--        while byte_cmd < 18 loop                -- go through LCD_init_cmds 
            
-           wait until spi_0_busy = '0';
-           tx_buf_0 <= LCD_init_cmd(byte_cmd);
-           data_cmd_sw <= '0';                      -- set DC to CMD-mode (0)
-           enable_signal_0 <= '1';
-           wait until clk'event;
-           enable_signal_0 <= '0';
+--           wait until spi_0_busy = '0';
+--           tx_buf_0 <= LCD_init_cmd(byte_cmd);
+--           data_cmd_sw <= '0';                      -- set DC to CMD-mode (0)
+--           enable_signal_0 <= '1';
+--           wait until clk'event;
+--           enable_signal_0 <= '0';
            
-           while byte_data < LCD_init_data_count(byte_cmd) loop         -- got through LCD_init_data
+--           while byte_data < LCD_init_data_count(byte_cmd) loop         -- got through LCD_init_data
            
-                wait until spi_0_busy = '0';
-                data_cmd_sw <= '1';                                     -- set DC to Data-mode (0)
-                tx_buf_0 <= LCD_init_data(byte_data_cont);
-                enable_signal_0 <= '1';
-                wait until clk'event;
-                enable_signal_0 <= '0';
+--                wait until spi_0_busy = '0';
+--                data_cmd_sw <= '1';                                     -- set DC to Data-mode (0)
+--                tx_buf_0 <= LCD_init_data(byte_data_cont);
+--                enable_signal_0 <= '1';
+--                wait until clk'event;
+--                enable_signal_0 <= '0';
                 
-                byte_data <= byte_data + 1;
-                byte_data_cont <= byte_data_cont +1;
-           End loop;
+--                byte_data <= byte_data + 1;
+--                byte_data_cont <= byte_data_cont +1;
+--           End loop;
            
-           byte_data <= 0;
-           byte_cmd <= byte_cmd + 1;
+--           byte_data <= 0;
+--           byte_cmd <= byte_cmd + 1;
            
-        End loop;
+--        End loop;
         
-        wait until spi_0_busy = '0';
-        data_cmd_sw <= '0';                      -- set DC to CMD-mode (0)
-        tx_buf_0 <= "00010001";                  -- Sleep out
-        enable_signal_0 <= '1';
-        wait until clk'event;
-        enable_signal_0 <= '0';
+--        wait until spi_0_busy = '0';
+--        data_cmd_sw <= '0';                      -- set DC to CMD-mode (0)
+--        tx_buf_0 <= "00010001";                  -- Sleep out
+--        enable_signal_0 <= '1';
+--        wait until clk'event;
+--        enable_signal_0 <= '0';
         
-        Wait for 200 ms;
+--        Wait for 200 ms;
         
+--        wait until spi_0_busy = '0';
+--        data_cmd_sw <= '0';                      -- set DC to CMD-mode (0)
+--        tx_buf_0 <= "00101010";                  -- Set Colum adress (set x)
+--        enable_signal_0 <= '1';
+--        wait until clk'event;
+--        enable_signal_0 <= '0';
         
+--        wait until spi_0_busy = '0' and spi_1_busy = '0';
         
-    End if;
-  End Process;
+----        spi_select <= "01";                      --- switch to spi1 (16 Bit)
+        
+----        data_cmd_sw <= '1';                                 -- set DC to DATA-mode (0)
+----        tx_buf_1 <= "0000000000000000";                  -- Set Colum start adress (set x)
+----        enable_signal_1 <= '1';
+----        wait until clk'event;
+----        enable_signal_1 <= '0';
+        
+----        wait until spi_0_busy = '0';
+----        tx_buf_1 <= "0000000011101111";                  -- Set Colum end adress (set x)
+----        enable_signal_1 <= '1';
+----        wait until clk'event;
+----        enable_signal_1 <= '0';
+        
+--        data_cmd_sw <= '1';                                 -- set DC to DATA-mode (0)
+--        tx_buf_0 <= "00000000";                  -- Set Colum start adress (set x) first half
+--        enable_signal_0 <= '1';
+--        wait until clk'event;
+--        enable_signal_0 <= '0';
+        
+--        wait until spi_0_busy = '0';
+--        tx_buf_0 <= "00000000";                  -- Set Colum start adress (set x) second half
+--        enable_signal_0 <= '1';
+--        wait until clk'event;
+--        enable_signal_0 <= '0';
+        
+--        wait until spi_0_busy = '0';
+--        tx_buf_0 <= "00000000";                  -- Set Colum end adress (set x) first half
+--        enable_signal_0 <= '1';
+--        wait until clk'event;
+--        enable_signal_0 <= '0';
+        
+--        wait until spi_0_busy = '0';
+--        tx_buf_0 <= "11101111";                  -- Set Colum end adress (set x) second half 
+--        enable_signal_0 <= '1';
+--        wait until clk'event;
+--        enable_signal_0 <= '0';
+        
+--        spi_select <= "00";
+        
+--        wait until spi_0_busy = '0';
+--        data_cmd_sw <= '0';                      -- set DC to CMD-mode (0)
+--        tx_buf_0 <= "00101011";                  -- Set page adress (set y)
+--        enable_signal_0 <= '1';
+--        wait until clk'event;
+--        enable_signal_0 <= '0';
+        
+--        wait until spi_0_busy = '0' and spi_1_busy = '0';
+----        spi_select <= "01";                      --- switch to spi1 (16 Bit)
+        
+----        data_cmd_sw <= '1';                              -- set DC to DATA-mode (0)
+----        tx_buf_1 <= "0000000000000000";                  -- Set Colum start adress (set y)
+----        enable_signal_1 <= '1';
+----        wait until clk'event;
+----        enable_signal_1 <= '0';
+        
+----        wait until spi_1_busy = '0';
+----        tx_buf_1 <= "0000000100111111";                  -- Set Colum end adress (set y)
+----        enable_signal_1 <= '1';
+----        wait until clk'event;
+----        enable_signal_1 <= '0';
+
+--        data_cmd_sw <= '1';                                 -- set DC to DATA-mode (0)
+--        tx_buf_0 <= "00000000";                  -- Set page start adress (set y) first half
+--        enable_signal_0 <= '1';
+--        wait until clk'event;
+--        enable_signal_0 <= '0';
+        
+--        wait until spi_0_busy = '0';
+--        tx_buf_0 <= "00000000";                  -- Set page start adress (set y) second half
+--        enable_signal_0 <= '1';
+--        wait until clk'event;
+--        enable_signal_0 <= '0';
+        
+--        wait until spi_0_busy = '0';
+--        tx_buf_0 <= "00000001";                  -- Set page end adress (set y) first half
+--        enable_signal_0 <= '1';
+--        wait until clk'event;
+--        enable_signal_0 <= '0';
+        
+--        wait until spi_0_busy = '0';
+--        tx_buf_0 <= "00111111";                  -- Set page end adress (set y) second half 
+--        enable_signal_0 <= '1';
+--        wait until clk'event;
+--        enable_signal_0 <= '0';
+        
+--        wait until spi_0_busy = '0';
+--        data_cmd_sw <= '0';                      -- set DC to CMD-mode (0)
+--        tx_buf_0 <= x"2C";                  -- quitieren
+--        enable_signal_0 <= '1';
+--        wait until clk'event;
+--        enable_signal_0 <= '0';
+        
+--        data_cmd_sw <= '1';                              -- set DC to DATA-mode (0)
+        
+--        wait until spi_1_busy = '0' and spi_0_busy = '0';
+--        spi_select <= "01";                         -- select spi 1 (16Bit)
+        
+--        for i in 0 to (10) loop
+--            tx_buf_1 <= x"F800";                  -- Image Data pixel by pixel (RED) RGB565 
+--            enable_signal_1 <= '1';
+--            wait until clk'event;
+--            enable_signal_1 <= '0';
+--            wait until spi_1_busy = '0';
+--        end loop; 
+        
+--        spi_select <= "00";
+        
+--        wait until spi_0_busy = '0';
+--        data_cmd_sw <= '0';                      -- set DC to CMD-mode (0)
+--        tx_buf_0 <= x"29";                  -- Display ON
+--        enable_signal_0 <= '1';
+--        wait until clk'event;
+--        enable_signal_0 <= '0';
+        
+--        wait until spi_0_busy = '0';
+--        data_cmd_sw <= '0';                      -- set DC to CMD-mode (0)
+--        tx_buf_0 <= x"2C";                  -- quitieren
+--        enable_signal_0 <= '1';
+--        wait until clk'event;
+--        enable_signal_0 <= '0';
+--        wait until spi_0_busy = '0';
+--        data_cmd_sw <= '0';                      -- set DC to CMD-mode (0)
+--        tx_buf_0 <= x"2C";                  -- quitieren
+--        enable_signal_0 <= '1';
+--        wait until clk'event;
+--        enable_signal_0 <= '0';
+        
+--        init_start <= true; 
+--    end if;
+--    wait;
+--  End Process;
   
 END behavior;

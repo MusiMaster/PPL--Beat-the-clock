@@ -116,8 +116,10 @@ ARCHITECTURE behavior OF Send8BitSPI2 IS
   SIGNAL spi_1_mosi         : STD_LOGIC;
   
   -- Zustandsdefinition
-  TYPE state_type IS (IDLE, RESET_LCD, SEND_CMD, SEND_DATA, WAIT_start, WAIT_BUSY, INIT_DONE_STATE);
+  TYPE state_type IS (IDLE, RESET_LCD, SEND_CMD, SEND_DATA, WAIT_start, WAIT_BUSY, WAIT_BUSY_2, WAIT_TIME, INIT_DATA_DONE_STATE);
+  TYPE state_b_type IS (EMPTY, SLEEP_OUT_SEND);
   SIGNAL state : state_type := IDLE;
+  SIGNAL state_b : state_b_type := EMPTY;
              
   -- Init-Sequenz Variablen
   signal resetrun       : integer := 0;
@@ -127,7 +129,12 @@ ARCHITECTURE behavior OF Send8BitSPI2 IS
   SIGNAL init_done      : boolean := false;
 
   signal reset_out_sig      : STD_LOGIC := '1';
-  signal data_cmd_sw_sig        :   STD_logic;
+  signal data_cmd_sw_sig    : STD_logic;
+  
+  signal time_to_wait : integer := 0;
+  signal time_stamp :   integer := 0;
+  
+   
   
   
    
@@ -230,8 +237,8 @@ BEGIN
                             state <= WAIT_start;
                         END IF;
                     END IF;
-                    IF byte_cmd = LCD_init_cmd'length OR byte_cmd > LCD_init_cmd'length then
-                        state <= INIT_DONE_STATE;
+                    IF byte_cmd >= LCD_init_cmd'length then
+                        state <= INIT_DATA_DONE_STATE;
                     END IF;
 
                 WHEN SEND_DATA =>
@@ -250,14 +257,28 @@ BEGIN
                         byte_cmd <= byte_cmd + 1;
                         state <= SEND_CMD;
                     END IF;
-                    IF byte_cmd = LCD_init_cmd'length then
-                        state <= INIT_DONE_STATE;
+                    IF byte_cmd >= LCD_init_cmd'length then
+                        state <= INIT_DATA_DONE_STATE;
+                    END IF;
+                
+                WHEN WAIT_TIME =>
+                
+                    time_stamp <= time_stamp +1;
+                    
+                    IF time_stamp = time_to_wait THEN
+                        
                     END IF;
                 
                 WHEN WAIT_start =>
                     
                     enable_signal_0 <= '0'; -- Sofort deaktivieren
-                    state <= WAIT_BUSY; -- Wechsel zu Busy-Warten
+                    
+                    IF state_b = EMPTY THEN
+                        state <= WAIT_BUSY; -- Wechsel zu Busy-Warten
+                    END IF;
+                    IF state_b = SLEEP_OUT_SEND THEN
+                        state <= WAIT_TIME;
+                    END IF;
                     
                 WHEN WAIT_BUSY =>
                     IF spi_0_busy = '0' THEN
@@ -270,11 +291,24 @@ BEGIN
                             state <= SEND_CMD;
                         END IF;
                     END IF;
-
-                WHEN INIT_DONE_STATE =>
+                
+                WHEN WAIT_BUSY_2 =>
+                    
+                    IF spi_0_busy = '0' THEN
+                    
+                    END IF;
+                    
+                WHEN INIT_DATA_DONE_STATE =>
                     -- Initialisierung abgeschlossen, eventuell weitere Schritte
                     --state <= IDLE;
-                    
+                    IF spi_0_busy = '0' THEN
+                        tx_buf_0 <= x"11";          -- Sleep out
+                        data_cmd_sw_sig <= '0'; -- CMD-Modus
+                        enable_signal_0 <= '1';
+                        
+                        state <= WAIT_start;
+                        state_b <= SLEEP_OUT_SEND;
+                    END IF;
 
                 WHEN OTHERS =>
                     state <= IDLE;

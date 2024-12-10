@@ -4,7 +4,7 @@
 
 set TIME_start [clock seconds] 
 namespace eval ::optrace {
-  variable script "/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.runs/synth_1/Send8BitSPI2.tcl"
+  variable script "G:/SPI2_TB/SPI2_TB.runs/synth_1/Send8BitSPI2.tcl"
   variable category "vivado_synth"
 }
 
@@ -70,25 +70,25 @@ proc create_report { reportName command } {
   }
 }
 OPTRACE "synth_1" START { ROLLUP_AUTO }
+set_param chipscope.maxJobs 2
 OPTRACE "Creating in-memory project" START { }
 create_project -in_memory -part xc7a100tcsg324-1
 
 set_param project.singleFileAddWarning.threshold 0
 set_param project.compositeFile.enableAutoGeneration 0
 set_param synth.vivado.isSynthRun true
-set_property webtalk.parent_dir /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.cache/wt [current_project]
-set_property parent.project_path /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.xpr [current_project]
+set_property webtalk.parent_dir G:/SPI2_TB/SPI2_TB.cache/wt [current_project]
+set_property parent.project_path G:/SPI2_TB/SPI2_TB.xpr [current_project]
 set_property default_lib xil_defaultlib [current_project]
 set_property target_language VHDL [current_project]
-set_property board_part digilentinc.com:nexys4:part0:1.1 [current_project]
-set_property ip_output_repo /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.cache/ip [current_project]
+set_property ip_output_repo g:/SPI2_TB/SPI2_TB.cache/ip [current_project]
 set_property ip_cache_permissions {read write} [current_project]
 OPTRACE "Creating in-memory project" END { }
 OPTRACE "Adding files" START { }
 read_vhdl -library xil_defaultlib {
-  /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/new/Array_1x8_Pkg.vhd
-  /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/imports/Downloads/spi_master.vhd
-  /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/new/Send8BitSPI2.vhd
+  G:/SPI2_TB/SPI2_TB.srcs/sources_1/new/Array_1x8_Pkg.vhd
+  G:/SPI2_TB/SPI2_TB.srcs/sources_1/imports/Downloads/spi_master.vhd
+  G:/SPI2_TB/SPI2_TB.srcs/sources_1/new/Send8BitSPI2.vhd
 }
 OPTRACE "Adding files" END { }
 # Mark all dcp files as not used in implementation to prevent them from being
@@ -99,8 +99,8 @@ OPTRACE "Adding files" END { }
 foreach dcp [get_files -quiet -all -filter file_type=="Design\ Checkpoint"] {
   set_property used_in_implementation false $dcp
 }
-read_xdc /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/constrs_1/imports/constraints/Nexys4_Master.xdc
-set_property used_in_implementation false [get_files /home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/constrs_1/imports/constraints/Nexys4_Master.xdc]
+read_xdc G:/SPI2_TB/SPI2_TB.srcs/constrs_1/imports/constraints/Nexys4_Master.xdc
+set_property used_in_implementation false [get_files G:/SPI2_TB/SPI2_TB.srcs/constrs_1/imports/constraints/Nexys4_Master.xdc]
 
 set_param ips.enableIPCacheLiteLoad 1
 close [open __synthesis_is_running__ w]

@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="393.901667 us"></ZoomStartTime>
-      <ZoomEndTime time="409.701668 us"></ZoomEndTime>
-      <Cursor1Time time="396.535000 us"></Cursor1Time>
+      <ZoomStartTime time="120,264,921.167 ns"></ZoomStartTime>
+      <ZoomEndTime time="120,265,050.368 ns"></ZoomEndTime>
+      <Cursor1Time time="120,265,161.167 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="276"></NameColumnWidth>
-      <ValueColumnWidth column_width="120"></ValueColumnWidth>
+      <ValueColumnWidth column_width="116"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="11" />
+   <WVObjectSize size="14" />
    <wvobject fp_name="/Send8BitSPI2_tb/clk_tb" type="logic">
       <obj_property name="ElementShortName">clk_tb</obj_property>
       <obj_property name="ObjectShortName">clk_tb</obj_property>
@@ -65,5 +65,17 @@
    <wvobject fp_name="/Send8BitSPI2_tb/uut/state" type="other">
       <obj_property name="ElementShortName">state</obj_property>
       <obj_property name="ObjectShortName">state</obj_property>
+   </wvobject>
+   <wvobject fp_name="/Send8BitSPI2_tb/uut/enable_signal_0" type="logic">
+      <obj_property name="ElementShortName">enable_signal_0</obj_property>
+      <obj_property name="ObjectShortName">enable_signal_0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/Send8BitSPI2_tb/uut/reset_spi_sig" type="logic">
+      <obj_property name="ElementShortName">reset_spi_sig</obj_property>
+      <obj_property name="ObjectShortName">reset_spi_sig</obj_property>
+   </wvobject>
+   <wvobject fp_name="/Send8BitSPI2_tb/uut/SPI_0_INST/reset_n" type="logic">
+      <obj_property name="ElementShortName">reset_n</obj_property>
+      <obj_property name="ObjectShortName">reset_n</obj_property>
    </wvobject>
 </wave_config>

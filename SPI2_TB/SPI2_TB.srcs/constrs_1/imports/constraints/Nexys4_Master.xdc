@@ -8,27 +8,41 @@
 # Constraints from file : 'Nexys4UserDemo.ucf'
 ####################################################################################
 
-# ADXL362 Accelerometer SPI Signals
-set_property PACKAGE_PIN E3 [get_ports clk]
-# The conversion of 'IOSTANDARD' constraint on 'net' object 'ss' has been applied to the port object 'ss'.
-set_property IOSTANDARD LVCMOS33 [get_ports clk]
+set_property PACKAGE_PIN E3 [get_ports sys_clk]
+set_property IOSTANDARD LVCMOS33 [get_ports sys_clk]
 
-set_property PACKAGE_PIN D18 [get_ports ss_out]
+set_property PACKAGE_PIN E18 [get_ports {ss_n[0]}]
 # The conversion of 'IOSTANDARD' constraint on 'net' object 'ss' has been applied to the port object 'ss'.
-set_property IOSTANDARD LVCMOS33 [get_ports ss_out]
+set_property IOSTANDARD LVCMOS33 [get_ports {ss_n[0]}]
 
-set_property PACKAGE_PIN C17 [get_ports mosi_top]
+set_property PACKAGE_PIN D17 [get_ports mosi]
 # The conversion of 'IOSTANDARD' constraint on 'net' object 'mosi' has been applied to the port object 'mosi'.
-set_property IOSTANDARD LVCMOS33 [get_ports mosi_top]
+set_property IOSTANDARD LVCMOS33 [get_ports mosi]
 
-set_property PACKAGE_PIN G13 [get_ports sclk_top]
+set_property PACKAGE_PIN C17 [get_ports sclk]
 # The conversion of 'IOSTANDARD' constraint on 'net' object 'sclk' has been applied to the port object 'sclk'.
-set_property IOSTANDARD LVCMOS33 [get_ports sclk_top]
+set_property IOSTANDARD LVCMOS33 [get_ports sclk]
+
+set_property PACKAGE_PIN D13 [get_ports data_cmd_sw]
+# The conversion of 'IOSTANDARD' constraint on 'net' object 'sclk' has been applied to the port object 'sclk'.
+set_property IOSTANDARD LVCMOS33 [get_ports data_cmd_sw]
+
+set_property PACKAGE_PIN T8 [get_ports busy]
+# The conversion of 'IOSTANDARD' constraint on 'net' object 'sclk' has been applied to the port object 'sclk'.
+set_property IOSTANDARD LVCMOS33 [get_ports busy]
+
+set_property PACKAGE_PIN E17 [get_ports reset_out]
+# The conversion of 'IOSTANDARD' constraint on 'net' object 'mosi' has been applied to the port object 'mosi'.
+set_property IOSTANDARD LVCMOS33 [get_ports reset_out]
+
+#set_property PACKAGE_PIN F14 [get_ports reset_n]
+# The conversion of 'IOSTANDARD' constraint on 'net' object 'mosi' has been applied to the port object 'mosi'.
+#set_property IOSTANDARD LVCMOS33 [get_ports reset_n]
 # Incoming System Clock PERIOD Constraint
 
 # All timing constraint translations are rough conversions, intended to act as a template for further manual refinement. The translations should not be expected to produce semantically identical results to the original ucf. Each xdc timing constraint must be manually inspected and verified to ensure it captures the desired intent
 
-create_clock -name clk -period 100000.000 [get_ports clk]
+#create_clock -name clk -period 20.0 [get_ports clk]
 
 # Ignore Clock Domain Crossing signals
 # These signals are coming from the 100MHz clock domain
@@ -38,3 +52,10 @@ create_clock -name clk -period 100000.000 [get_ports clk]
 # Define a new TNM for a FROM - TO constraint
 
 #set_false_path -from [all_fanout -endpoints_only -only_cells -flat -from [get_nets clk_i]] -to [all_fanout -endpoints_only -flat -from [get_nets Inst_VGA/pxl_clk]]
+
+set_property PACKAGE_PIN C12 [get_ports reset_n]
+set_property IOSTANDARD LVCMOS33 [get_ports reset_n]
+set_property C_CLK_INPUT_FREQ_HZ 300000000 [get_debug_cores dbg_hub]
+set_property C_ENABLE_CLK_DIVIDER false [get_debug_cores dbg_hub]
+set_property C_USER_SCAN_CHAIN 1 [get_debug_cores dbg_hub]
+connect_debug_port dbg_hub/clk [get_nets clk]

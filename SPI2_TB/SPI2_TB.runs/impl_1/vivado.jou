@@ -2,12 +2,12 @@
 # Vivado v2021.2 (64-bit)
 # SW Build 3367213 on Tue Oct 19 02:48:09 MDT 2021
 # IP Build 3369179 on Thu Oct 21 08:25:16 MDT 2021
-# Start of session at: Tue Dec 10 14:48:31 2024
-# Process ID: 276
+# Start of session at: Thu Dec 12 11:56:42 2024
+# Process ID: 2044
 # Current directory: G:/SPI2_TB/SPI2_TB.runs/impl_1
-# Command line: vivado.exe -log Send8BitSPI2.vdi -applog -product Vivado -messageDb vivado.pb -mode batch -source Send8BitSPI2.tcl -notrace
-# Log file: G:/SPI2_TB/SPI2_TB.runs/impl_1/Send8BitSPI2.vdi
+# Command line: vivado.exe -log design_1_wrapper.vdi -applog -product Vivado -messageDb vivado.pb -mode batch -source design_1_wrapper.tcl -notrace
+# Log file: G:/SPI2_TB/SPI2_TB.runs/impl_1/design_1_wrapper.vdi
 # Journal file: G:/SPI2_TB/SPI2_TB.runs/impl_1\vivado.jou
-# Running On: CIP-S-128-005, OS: Windows, CPU Frequency: 3600 MHz, CPU Physical cores: 4, Host memory: 17095 MB
+# Running On: CIP-S-128-012, OS: Windows, CPU Frequency: 3600 MHz, CPU Physical cores: 4, Host memory: 17095 MB
 #-----------------------------------------------------------
-source Send8BitSPI2.tcl -notrace
+source design_1_wrapper.tcl -notrace

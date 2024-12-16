@@ -1,8 +1,10 @@
 0.7
 2020.2
-Nov 18 2020
-09:20:35
-/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sim_1/new/Send8BitSPI2_TB.vhd,1733409714,vhdl,,,,send8bitspi2_tb,,,,,,,,
-/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/imports/Downloads/spi_master.vhd,1733322629,vhdl,,,,spi_master,,,,,,,,
-/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/new/Array_1x8_Pkg.vhd,1733324651,vhdl,/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/new/Send8BitSPI2.vhd,,,array_1x8_pkg,,,,,,,,
-/home/fij32622/Documents/PPL--Beat-the-clock/SPI2_TB/SPI2_TB.srcs/sources_1/new/Send8BitSPI2.vhd,1733409886,vhdl,,,,send8bitspi2,,,,,,,,
+Oct 19 2021
+03:16:22
+G:/SPI2_TB/SPI2_TB.srcs/sim_1/new/LCD_INIT_TB.vhd,1733929393,vhdl,,,,lcd_init_tb,,,,,,,,
+G:/SPI2_TB/SPI2_TB.srcs/sim_1/new/Send8BitSPI2_TB.vhd,1733921769,vhdl,,,,send8bitspi2_tb,,,,,,,,
+G:/SPI2_TB/SPI2_TB.srcs/sources_1/imports/Downloads/spi_master.vhd,1733487856,vhdl,,,,spi_master,,,,,,,,
+G:/SPI2_TB/SPI2_TB.srcs/sources_1/new/Array_1x8_Pkg.vhd,1733487856,vhdl,G:/SPI2_TB/SPI2_TB.srcs/sources_1/new/Send8BitSPI2.vhd,,,array_1x8_pkg,,,,,,,,
+G:/SPI2_TB/SPI2_TB.srcs/sources_1/new/Send8BitSPI2.vhd,1733993407,vhdl,,,,send8bitspi2,,,,,,,,
+G:/SPI2_TB/SPI2_TB.srcs/sources_1/new/toplevel.vhd,1733932745,vhdl,,,,lcd_init,,,,,,,,

@@ -1,1 +1,1 @@
--wto "489deb8d4b4f4f9486c63299f0816cd5" --incr --debug "typical" --relax --mt "8" -L "xil_defaultlib" -L "secureip" --snapshot "Send8BitSPI2_TB_behav" "xil_defaultlib.Send8BitSPI2_TB" -log "elaborate.log" 
+--incr --debug "typical" --relax --mt "2" -L "xil_defaultlib" -L "secureip" --snapshot "Send8BitSPI2_tb_behav" "xil_defaultlib.Send8BitSPI2_tb" -log "elaborate.log" 

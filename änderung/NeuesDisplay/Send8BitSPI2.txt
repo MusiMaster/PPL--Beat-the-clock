@@ -1,0 +1,311 @@
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.std_logic_unsigned.ALL;
+use ieee.numeric_std.all;
+USE work.Array_1x8_Pkg.all;
+
+ENTITY Send8BitSPI2 IS
+  
+  PORT(
+    clk           : IN  STD_LOGIC;             -- System Clock
+    reset_n       : IN  STD_LOGIC;             -- Asynchronous Reset
+    reset_n_spi   : IN  STD_LOGIC;             -- Asynchronous Reset
+    --activate_out  : IN  STD_LOGIC;             -- activate outputs
+    --send_trigger  : IN  STD_LOGIC;             -- Trigger to send data
+    --data_in       : IN  STD_LOGIC_VECTOR(7 DOWNTO 0); -- 8-bit data input
+    --miso          : IN  STD_LOGIC;             -- Master In, Slave Out
+    mosi          : OUT STD_LOGIC;             -- Master Out, Slave In
+    sclk          : OUT STD_LOGIC;             -- SPI Clock
+    ss_n          : OUT STD_LOGIC_VECTOR(0 DOWNTO 0); -- Slave Select
+    busy          : OUT STD_LOGIC;             -- Busy signal
+    reset_out     : OUT STD_LOGIC := '1';   -- Reset out for lcd 
+    data_cmd_sw   : OUT STD_LOGIC;              -- D/C Pin  to signalize between cmd or data transfer {0 = cmd; 1 = data}
+    VCCE          : OUT STD_LOGIC;
+    seq_done      : OUT STD_LOGIC
+  );
+END Send8BitSPI2;
+
+ARCHITECTURE behavior OF Send8BitSPI2 IS
+
+  -- Component Declaration for spi_master
+  COMPONENT spi_master
+    GENERIC (
+      slaves  : INTEGER := 1;
+      d_width : INTEGER := 8
+    );
+    PORT (
+      clock   : IN  STD_LOGIC;
+      reset_n : IN  STD_LOGIC;
+      enable  : IN  STD_LOGIC;
+      cpol    : IN  STD_LOGIC;
+      cpha    : IN  STD_LOGIC;
+      cont    : IN  STD_LOGIC;
+      clk_div : IN  INTEGER;
+      addr    : IN  INTEGER;
+      tx_data : IN  STD_LOGIC_VECTOR(d_width-1 DOWNTO 0);
+      miso    : IN  STD_LOGIC;
+      sclk    : BUFFER STD_LOGIC;   --- (readable out)
+      ss_n    : BUFFER STD_LOGIC_VECTOR(slaves-1 DOWNTO 0); --- (readable out)
+      mosi    : OUT STD_LOGIC;
+      busy    : OUT STD_LOGIC;
+      rx_data : OUT STD_LOGIC_VECTOR(d_width-1 DOWNTO 0)
+    );
+  END COMPONENT;
+  
+  constant LCD_init_cmd : ByteArray :=  (
+    0  => x"FD", 1  => x"12", 2  => x"AE", 3  => x"A0", 4  => x"72",
+    5  => x"A1", 6  => x"00", 7  => x"A2", 8  => x"00", 9  => x"A4",
+    10 => x"A8", 11 => x"3F", 12 => x"AD", 13 => x"8E", 14 => x"B0",
+    15 => x"0B", 16 => x"B1", 17 => x"31", 18 => x"B3", 19 => x"F0",
+    20 => x"8A", 21 => x"64", 22 => x"8B", 23 => x"78", 24 => x"8C",
+    25 => x"64", 26 => x"BB", 27 => x"3A", 28 => x"BE", 29 => x"3E",
+    30 => x"87", 31 => x"06", 32 => x"81", 33 => x"91", 34 => x"82",
+    35 => x"50", 36 => x"83", 37 => x"7D", 38 => x"2E",
+    -- Draw Rectangle
+    39 = > x"22",
+    40 = > x"00", 41 = > x"00", 42 = > x"5F", 43 = > x"3F", 44 = > x"1C",
+    45 = > x"00", 46 = > x"00", 47 = > x"00", 48 = > x"00", 49 = > x"28"
+  );
+
+  constant LCD_Pixel : integer := (320*240);
+  --constant LCD_Pixel : integer := 1000;
+
+  signal spi_select         : STD_LOGIC_VECTOR(1 downto 0) := "00";
+
+  signal reset_spi_sig      : STD_LOGIC := '1';
+  
+  --spi(0) 8 bit  
+  SIGNAL enable_signal_0    : STD_LOGIC := '0';
+  signal tx_buf_0           : STD_LOGIC_VECTOR(7 downto 0);  
+  SIGNAL spi_0_busy         : STD_LOGIC;
+  SIGNAL dummy_rx_data_0    : STD_LOGIC_VECTOR(7 DOWNTO 0);
+  SIGNAL spi_0_clk          : STD_LOGIC;
+  SIGNAL spi_0_ss_n         : STD_LOGIC_VECTOR(0 DOWNTO 0);
+  SIGNAL spi_0_mosi         : STD_LOGIC;
+  
+  --spi(1) 16 bit  
+  SIGNAL enable_signal_1    : STD_LOGIC := '0';
+  signal tx_buf_1           : STD_LOGIC_VECTOR(15 downto 0);  
+  SIGNAL spi_1_busy         : STD_LOGIC;
+  SIGNAL dummy_rx_data_1    : STD_LOGIC_VECTOR(15 DOWNTO 0);
+  SIGNAL spi_1_clk          : STD_LOGIC;
+  SIGNAL spi_1_ss_n         : STD_LOGIC_VECTOR(0 DOWNTO 0);
+  SIGNAL spi_1_mosi         : STD_LOGIC;
+  
+  -- Zustandsdefinition
+  TYPE state_type IS (IDLE, IDLE_2, RESET_LCD,
+                WAIT_TIME_RESET,
+                SEND_CMD,
+				Extra_Cicle,
+				VCCEn_HIGH,
+				WAIT_TIME_VCCEn_HIGH_start,
+				WAIT_TIME_VCCEn_HIGH_ongoing,
+				SEND_CMD_DISPON,
+				WAIT_TIME_DISPON,
+				DONE
+				);
+  SIGNAL state : state_type := IDLE;
+  SIGNAL next_state : state_type := IDLE;
+  SIGNAL debug_state : state_type := IDLE;
+  
+             
+  -- Init-Sequenz Variablen
+  signal resetrun       : integer := 0;
+  SIGNAL cmd_counter       : integer := 0;
+
+  signal reset_out_sig      : STD_LOGIC := '1';
+  signal data_cmd_sw_sig    : STD_logic;
+  
+  signal time_to_wait : integer := 0;
+  signal time_stamp :   integer := 0;
+  
+  signal dummyMiso  : std_logic := '0';
+  
+  signal cyclecount : integer := 0;
+   
+
+BEGIN
+
+  -- Instantiating the SPI Master 0
+  SPI_0_INST : spi_master
+    GENERIC MAP (
+      slaves  => 1,
+      d_width => 8
+    )
+    PORT MAP (
+      clock   => clk,
+      reset_n => reset_n_spi,
+      enable  => enable_signal_0,
+      cpol    => '0',       -- Clock polarity (CPOL = 0)
+      cpha    => '0',       -- Clock phase (CPHA = 0)
+      cont    => '0',       -- Non-continuous mode
+      clk_div => 6,         -- Clock divider (adjust as needed)
+      addr    => 0,         -- Slave address (only one slave in this case)
+      tx_data => tx_buf_0,   -- 8-bit data to send
+      miso    => dummyMiso,
+      sclk    => spi_0_clk,
+      ss_n    => spi_0_ss_n,
+      mosi    => spi_0_mosi,
+      busy    => spi_0_busy,
+      rx_data => dummy_rx_data_0
+    );
+    
+    -- Instantiating the SPI Master 1
+  SPI_1_INST : spi_master
+    GENERIC MAP (
+      slaves  => 1,
+      d_width => 16
+    )
+    PORT MAP (
+      clock   => clk,
+      reset_n => reset_n_spi,
+      enable  => enable_signal_1,
+      cpol    => '0',       -- Clock polarity (CPOL = 0)
+      cpha    => '0',       -- Clock phase (CPHA = 0)
+      cont    => '1',       -- Non-continuous mode
+      clk_div => 6,         -- Clock divider (adjust as needed)
+      addr    => 0,         -- Slave address (only one slave in this case)
+      tx_data => tx_buf_1,   -- 16-bit data to send
+      miso    => dummyMiso,
+      sclk    => spi_1_clk,
+      ss_n    => spi_1_ss_n,
+      mosi    => spi_1_mosi,
+      busy    => spi_1_busy,
+      rx_data => dummy_rx_data_1
+    );
+
+  -- Output Assignments
+  mosi <= spi_0_mosi when spi_select = "00" else spi_1_mosi;
+  sclk <= spi_0_clk when spi_select = "00"  else spi_1_clk;
+  ss_n <= spi_0_ss_n when spi_select = "00" else spi_1_ss_n;
+  busy <= spi_0_busy when spi_select = "00" else spi_1_busy;
+  reset_out <= reset_out_sig;
+  data_cmd_sw <= data_cmd_sw_sig;
+  --
+ 
+ 
+     -- FSM Prozess
+    LCD_init_seq : PROCESS(clk, reset_n)
+    BEGIN
+        IF reset_n = '0' THEN
+            -- Reset-Logik
+            state          <= RESET_LCD;
+            reset_out_sig      <= '1';
+            byte_cmd       <= 0;
+            byte_data      <= 0;
+            byte_data_cont <= 0;
+            spi_select     <= "00";
+            data_cmd_sw_sig    <= '0';
+            tx_buf_0       <= (others => '0');
+            enable_signal_0 <= '0';
+            VCCE <= '0';
+        
+        ELSIF rising_edge(clk) THEN
+            
+            CASE state IS
+                WHEN IDLE =>
+                    -- Start der Initialisierung
+                    -- Reset-Logik
+                    state          <= IDLE;
+                    reset_out_sig      <= '1';
+                    byte_cmd       <= 0;
+                    byte_data      <= 0;
+                    byte_data_cont <= 0;
+                    spi_select     <= "00";
+                    data_cmd_sw_sig    <= '0';
+                    tx_buf_0       <= (others => '0');
+                    enable_signal_0 <= '0';
+                    VCCE <= '0';
+
+                WHEN RESET_LCD =>
+                    
+					if resetrun < 2 THEN
+						-- Reset-Impuls senden
+						reset_out_sig <= reset_out_sig XOR '1';
+						reset_n_spi <= reset_n_spi XOR '1';
+						resetrun <= resetrun + 1;
+						state <= WAIT_TIME_RESET;
+						time_to_wait <= 125;
+					ELSE
+                        resetrun <= '0';
+						state <= SEND_CMD;
+                    END IF;
+                    
+				WHEN WAIT_TIME_RESET =>
+                
+                    time_stamp <= time_stamp +1;
+                    
+                    IF time_stamp = time_to_wait THEN
+                        time_stamp  <= 0;
+                        state <= RESET_LCD;
+                        
+                    END IF;       
+                
+				WHEN SEND_CMD =>
+					IF cmd_counter < LCD_init_cmd'length THEN
+
+                        debug_state <= SEND_CMD;
+                        tx_buf_0 <= LCD_init_cmd(cmd_counter);
+                        data_cmd_sw_sig <= '0'; -- CMD-Modus
+                        enable_signal_0 <= '1';
+                        cmd_counter <= cmd_counter + 1;
+                        state <= Extra_Cicle;
+                        next_state <= SEND_CMD;
+
+					ELSE
+						state <= VCCEn_HIGH;
+					END IF;
+               
+                
+                WHEN Extra_Cicle =>
+                    --debug_state <= Extra_Cicle ;
+                    cyclecount <= cyclecount + 1;                    
+                    IF spi_0_busy = '0' and spi_1_busy = '0' and cyclecount >= 6 THEN
+                        cyclecount <= 0;
+                        state <= next_state;
+                    ELSIF cyclecount = 1 THEN
+                        enable_signal_0 <= '0';
+                        enable_signal_1 <= '0';
+                    END IF;
+                    
+                                     
+                WHEN VCCEn_HIGH =>
+                    
+                    debug_state <= VCCEn_HIGH;
+                    VCCE <= '1';
+                    state <= WAIT_TIME_VCCEn_HIGH;
+				
+				WHEN WAIT_TIME_VCCEn_HIGH_start =>
+                    time_to_wait <= (10*10*10*10*10*10*12)/4;   --120 ms
+                    --time_to_wait <= 10;
+                    time_stamp <= 0;
+                    state <= WAIT_TIME_VCCEn_HIGH_ongoing;
+                    
+                WHEN WAIT_TIME_VCCEn_HIGH_ongoing =>
+                    time_stamp <= time_stamp + 1;
+                    IF time_stamp = time_to_wait THEN
+                        time_stamp <= 0;
+                        next_state <= SEND_CMD_DISPON;
+                    END IF;
+					
+				WHEN SEND_CMD_DISPON =>
+					
+                    debug_state <= SEND_CMD_DISPON;
+                    tx_buf_0 <= x"AF";          -- Memory Write
+                    data_cmd_sw_sig <= '0'; -- DATA-Modus
+                    enable_signal_0 <= '1';
+                    state <= Extra_Cicle; 
+                    next_state <= DONE;
+                
+                WHEN DONE =>
+                    debug_state <= DONE;
+                    seq_done <= '1';
+                    state <= DONE;
+                    
+                WHEN OTHERS =>
+                    state <= IDLE;
+                    
+            END CASE;
+        END IF;
+    END PROCESS LCD_init_seq;
+END behavior;

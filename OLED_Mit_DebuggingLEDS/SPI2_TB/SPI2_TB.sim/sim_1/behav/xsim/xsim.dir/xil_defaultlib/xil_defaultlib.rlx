@@ -1,0 +1,9 @@
+0.7
+2020.2
+Oct 19 2021
+03:16:22
+C:/Users/fij32622/Desktop/SPI2_TB/SPI2_TB.srcs/sim_1/new/LCD_INIT_TB.vhd,1734616179,vhdl,,,,lcd_init_tb,,,,,,,,
+C:/Users/fij32622/Desktop/SPI2_TB/SPI2_TB.srcs/sources_1/imports/Downloads/spi_master.vhd,1734607144,vhdl,,,,spi_master,,,,,,,,
+C:/Users/fij32622/Desktop/SPI2_TB/SPI2_TB.srcs/sources_1/new/Array_1x8_Pkg.vhd,1734436721,vhdl,C:/Users/fij32622/Desktop/SPI2_TB/SPI2_TB.srcs/sources_1/new/Send8BitSPI2.vhd,,,array_1x8_pkg,,,,,,,,
+C:/Users/fij32622/Desktop/SPI2_TB/SPI2_TB.srcs/sources_1/new/Send8BitSPI2.vhd,1734622359,vhdl,,,,send8bitspi2,,,,,,,,
+C:/Users/fij32622/Desktop/SPI2_TB/SPI2_TB.srcs/sources_1/new/toplevel.vhd,1734619017,vhdl,,,,lcd_init,,,,,,,,

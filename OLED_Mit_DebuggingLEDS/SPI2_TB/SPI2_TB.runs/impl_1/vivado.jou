@@ -1,0 +1,13 @@
+#-----------------------------------------------------------
+# Vivado v2021.2 (64-bit)
+# SW Build 3367213 on Tue Oct 19 02:48:09 MDT 2021
+# IP Build 3369179 on Thu Oct 21 08:25:16 MDT 2021
+# Start of session at: Thu Dec 19 16:59:10 2024
+# Process ID: 13876
+# Current directory: C:/Users/fij32622/Desktop/SPI2_TB/SPI2_TB.runs/impl_1
+# Command line: vivado.exe -log LCD_INIT.vdi -applog -product Vivado -messageDb vivado.pb -mode batch -source LCD_INIT.tcl -notrace
+# Log file: C:/Users/fij32622/Desktop/SPI2_TB/SPI2_TB.runs/impl_1/LCD_INIT.vdi
+# Journal file: C:/Users/fij32622/Desktop/SPI2_TB/SPI2_TB.runs/impl_1\vivado.jou
+# Running On: CIP-S-128-012, OS: Windows, CPU Frequency: 3600 MHz, CPU Physical cores: 4, Host memory: 17095 MB
+#-----------------------------------------------------------
+source LCD_INIT.tcl -notrace

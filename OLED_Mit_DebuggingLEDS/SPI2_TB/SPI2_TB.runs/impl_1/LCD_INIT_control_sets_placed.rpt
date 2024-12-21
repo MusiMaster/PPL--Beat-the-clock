@@ -1,0 +1,105 @@
+Copyright 1986-2021 Xilinx, Inc. All Rights Reserved.
+-------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2021.2 (win64) Build 3367213 Tue Oct 19 02:48:09 MDT 2021
+| Date         : Thu Dec 19 16:59:41 2024
+| Host         : CIP-S-128-012 running 64-bit major release  (build 9200)
+| Command      : report_control_sets -verbose -file LCD_INIT_control_sets_placed.rpt
+| Design       : LCD_INIT
+| Device       : xc7a100t
+-------------------------------------------------------------------------------------
+
+Control Set Information
+
+Table of Contents
+-----------------
+1. Summary
+2. Histogram
+3. Flip-Flop Distribution
+4. Detailed Control Set Information
+
+1. Summary
+----------
+
++----------------------------------------------------------+-------+
+|                          Status                          | Count |
++----------------------------------------------------------+-------+
+| Total control sets                                       |    27 |
+|    Minimum number of control sets                        |    27 |
+|    Addition due to synthesis replication                 |     0 |
+|    Addition due to physical synthesis replication        |     0 |
+| Unused register locations in slices containing registers |   116 |
++----------------------------------------------------------+-------+
+* Control sets can be merged at opt_design using control_set_merge or merge_equivalent_drivers
+** Run report_qor_suggestions for automated merging and remapping suggestions
+
+
+2. Histogram
+------------
+
++--------------------+-------+
+|       Fanout       | Count |
++--------------------+-------+
+| Total control sets |    27 |
+| >= 0 to < 4        |    14 |
+| >= 4 to < 6        |     2 |
+| >= 6 to < 8        |     1 |
+| >= 8 to < 10       |     2 |
+| >= 10 to < 12      |     0 |
+| >= 12 to < 14      |     0 |
+| >= 14 to < 16      |     0 |
+| >= 16              |     8 |
++--------------------+-------+
+* Control sets can be remapped at either synth_design or opt_design
+
+
+3. Flip-Flop Distribution
+-------------------------
+
++--------------+-----------------------+------------------------+-----------------+--------------+
+| Clock Enable | Synchronous Set/Reset | Asynchronous Set/Reset | Total Registers | Total Slices |
++--------------+-----------------------+------------------------+-----------------+--------------+
+| No           | No                    | No                     |              27 |           18 |
+| No           | No                    | Yes                    |               0 |            0 |
+| No           | Yes                   | No                     |              31 |            8 |
+| Yes          | No                    | No                     |              62 |           25 |
+| Yes          | No                    | Yes                    |               4 |            3 |
+| Yes          | Yes                   | No                     |             168 |           44 |
++--------------+-----------------------+------------------------+-----------------+--------------+
+
+
+4. Detailed Control Set Information
+-----------------------------------
+
++-----------------------------+-------------------------------------------------+------------------------------------------+------------------+----------------+--------------+
+|         Clock Signal        |                  Enable Signal                  |             Set/Reset Signal             | Slice Load Count | Bel Load Count | Bels / Slice |
++-----------------------------+-------------------------------------------------+------------------------------------------+------------------+----------------+--------------+
+|  SPI_SEND/state0            |                                                 |                                          |                1 |              1 |         1.00 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/stateLED_Extra_Cicle0                  |                                          |                1 |              1 |         1.00 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/stateLED_RESET_LCD0                    |                                          |                1 |              1 |         1.00 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/stateLED_SEND_CMD0                     |                                          |                1 |              1 |         1.00 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/stateLED_SEND_CMD_DISPON_i_1_n_0       |                                          |                1 |              1 |         1.00 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/stateLED_SEND_CMD_DRAW_RECT0           |                                          |                1 |              1 |         1.00 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/stateLED_WAIT_TIME_VCCEn_HIGH_ongoing0 |                                          |                1 |              1 |         1.00 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/stateLED_WAIT_TIME_VCCEn_HIGH_start0   |                                          |                1 |              1 |         1.00 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/stateLED_VCCEn_HIGH0                   |                                          |                1 |              1 |         1.00 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/stateLED_WAIT_TIME_RESET0              |                                          |                1 |              1 |         1.00 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/time_stamp[31]_i_2_n_0                 |                                          |                1 |              1 |         1.00 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/VCCE0                                  |                                          |                1 |              1 |         1.00 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/stateLED_WAIT_TIME_DISPON0             |                                          |                1 |              2 |         2.00 |
+|  sys_clk_IBUF_BUFG          |                                                 |                                          |                3 |              3 |         1.00 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/state                                  | SPI_SEND/state0                          |                3 |              4 |         1.33 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/SPI_0_INST/clk_toggles[4]_i_1_n_0      | SPI_SEND/SPI_0_INST/count[31]_i_1__0_n_0 |                2 |              5 |         2.50 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/SPI_1_INST/clk_toggles[5]_i_1_n_0      | SPI_SEND/SPI_1_INST/count[31]_i_1_n_0    |                2 |              6 |         3.00 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/SPI_0_INST/tx_buffer[7]_i_1_n_0        |                                          |                1 |              8 |         8.00 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/data_cmd_sw_sig0                       |                                          |                4 |              9 |         2.25 |
+|  CLK_25MHz_sig_reg_n_0_BUFG |                                                 |                                          |               14 |             23 |         1.64 |
+|  sys_clk_IBUF_BUFG          |                                                 | CLK_25MHz_sig                            |                8 |             31 |         3.88 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/time_stamp[31]_i_2_n_0                 | SPI_SEND/time_stamp[31]_i_1_n_0          |                8 |             31 |         3.88 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/SPI_1_INST/count[31]_i_2__0_n_0        | SPI_SEND/SPI_1_INST/count[31]_i_1_n_0    |                7 |             31 |         4.43 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/SPI_0_INST/count[31]_i_2_n_0           | SPI_SEND/SPI_0_INST/count[31]_i_1__0_n_0 |                7 |             31 |         4.43 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/cmd_counter0                           | SPI_SEND/cmd_counter[31]_i_1_n_0         |                9 |             32 |         3.56 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/cyclecount0                            | SPI_SEND/cyclecount[31]_i_1_n_0          |                9 |             32 |         3.56 |
+|  CLK_25MHz_sig_reg_n_0_BUFG | SPI_SEND/resetrun0                              |                                          |                8 |             32 |         4.00 |
++-----------------------------+-------------------------------------------------+------------------------------------------+------------------+----------------+--------------+
+
+

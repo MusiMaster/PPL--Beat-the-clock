@@ -1,0 +1,82 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.numeric_std.ALL;
+
+entity measure_time is
+    port (
+        clk               : in std_logic;       
+        reset             : in std_logic;      
+        game_start        : in std_logic;         
+        p1_button         : in std_logic;         -- Button Spieler 1
+        p2_button         : in std_logic;         -- Button Spieler 2
+        random_time       : in integer range 5 to 20; -- Vorgabezeit in sec
+        p1_deviation      : out integer range -20 to 20; -- Abweichung Spieler 1
+        p2_deviation      : out integer range -20 to 20; -- Abweichung Spieler 2
+        game_over         : out std_logic          
+    );
+end measure_time;
+
+architecture Behavioral of measure_time is
+    constant CLK_FREQUENCY : integer := 100_000_000; -- 100 MHz
+    constant SEC_CYCLES    : integer := CLK_FREQUENCY;
+
+    signal elapsed_cycles  : integer := 0;       -- Gesamte verstrichene Takte
+    signal p1_time         : integer range 0 to 20 := 0; -- Zeit Spieler 1
+    signal p2_time         : integer range 0 to 20 := 0; -- Zeit Spieler 2
+    signal p1_pressed      : boolean := false;   -- Spieler 1 gedrückt
+    signal p2_pressed      : boolean := false;   -- Spieler 2 gedrückt
+    signal timer_active    : boolean := false;   -- Timer läuft
+begin
+
+    -- Prozess zur Zeitmessung
+    timer_process: process(clk, reset)
+    begin
+        if reset = '1' then
+            -- Reset aller Signale
+            elapsed_cycles <= 0;
+            p1_time <= 0;
+            p2_time <= 0;
+            p1_pressed <= false;
+            p2_pressed <= false;
+            timer_active <= false;
+            game_over <= '0';
+        elsif rising_edge(clk) then
+            if game_start = '1' then
+                -- Spiel starten: Timer aktivieren und Zähler zurücksetzen
+                elapsed_cycles <= 0;
+                p1_pressed <= false;
+                p2_pressed <= false;
+                timer_active <= true;
+                game_over <= '0';
+            end if;
+
+            if timer_active then
+                -- Zählt die vergangenen Takte
+                elapsed_cycles <= elapsed_cycles + 1;
+
+                -- Spieler 1 drückt den Button
+                if p1_button = '1' and not p1_pressed then
+                    p1_time <= elapsed_cycles / SEC_CYCLES; -- Umrechnung in Sekunden
+                    p1_pressed <= true;
+                end if;
+
+                -- Spieler 2 drückt den Button
+                if p2_button = '1' and not p2_pressed then
+                    p2_time <= elapsed_cycles / SEC_CYCLES; -- Umrechnung in Sekunden
+                    p2_pressed <= true;
+                end if;
+
+                -- Timer stoppen, wenn beide Spieler gedrückt haben
+                if p1_pressed and p2_pressed then
+                    timer_active <= false;
+                    game_over <= '1';
+                end if;
+            end if;
+        end if;
+    end process;
+
+    -- Berechnung  Abweichungen
+    p1_deviation <= p1_time - random_time when p1_pressed else 0;
+    p2_deviation <= p2_time - random_time when p2_pressed else 0;
+
+end Behavioral;

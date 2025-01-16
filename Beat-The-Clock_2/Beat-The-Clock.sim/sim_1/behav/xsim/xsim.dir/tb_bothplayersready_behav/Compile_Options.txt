@@ -1,0 +1,1 @@
+-wto "48a556bc3b4b478ea4a46648c3089168" --incr --debug "typical" --relax --mt "8" -L "xil_defaultlib" -L "secureip" --snapshot "tb_bothplayersready_behav" "xil_defaultlib.tb_bothplayersready" -log "elaborate.log" 

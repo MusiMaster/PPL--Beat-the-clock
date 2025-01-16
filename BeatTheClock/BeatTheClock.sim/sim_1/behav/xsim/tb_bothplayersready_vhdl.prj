@@ -1,7 +1,0 @@
-# compile vhdl design source files
-vhdl xil_defaultlib  \
-"../../../../BeatTheClock.srcs/sources_1/new/bothplayersready.vhd" \
-"../../../../BeatTheClock.srcs/sim_1/new/bothplayersready_tb.vhd" \
-
-# Do not sort compile order
-nosort

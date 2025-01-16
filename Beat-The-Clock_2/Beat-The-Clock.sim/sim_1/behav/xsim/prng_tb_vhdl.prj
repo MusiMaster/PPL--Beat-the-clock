@@ -1,0 +1,7 @@
+# compile vhdl design source files
+vhdl xil_defaultlib  \
+"../../../../Beat-The-Clock.srcs/sources_1/imports/PPL--Beat-the-clock/prng.vhdl" \
+"../../../../Beat-The-Clock.srcs/sim_1/imports/PPL--Beat-the-clock/BeatTheClock.srcs/sim_1/new/prng_tb.vhd" \
+
+# Do not sort compile order
+nosort
